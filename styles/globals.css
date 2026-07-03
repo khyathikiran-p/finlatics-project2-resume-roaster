@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+  background-image:
+    radial-gradient(60rem 40rem at 15% -10%, rgba(249, 115, 22, 0.14), transparent 60%),
+    radial-gradient(50rem 40rem at 100% 0%, rgba(239, 68, 68, 0.12), transparent 55%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-ember-400 to-ember-600 px-6 py-3 font-semibold text-slate-950 shadow-lg shadow-ember-500/25 transition hover:-translate-y-0.5 hover:shadow-ember-500/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-100 transition hover:border-ember-400 hover:text-ember-400;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-ember-400 via-orange-300 to-ember-600 bg-clip-text text-transparent;
+  }
+}

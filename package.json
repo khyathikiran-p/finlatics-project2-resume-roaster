@@ -1,0 +1,30 @@
+{
+  "name": "finlatics-project2-resume-roaster",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Resume Roaster — upload a resume PDF and get roasted (and coached) by Claude. Finlatics ANDP Project-2.",
+  "author": "Khyathi Kiran Pediredla",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "@prisma/client": "^5.22.0",
+    "next": "14.2.15",
+    "next-auth": "^4.24.11",
+    "pdf-parse": "^1.1.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.15"
+  }
+}
