@@ -73,11 +73,17 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("Roast error:", err);
     const status = err?.status || err?.statusCode;
+    const raw = String(err?.message || "");
     if (status === 401) {
       return res.status(500).json({ error: "The ANTHROPIC_API_KEY on the server is invalid." });
     }
     if (status === 429) {
-      return res.status(429).json({ error: "Rate limited by the AI service. Please try again in a moment." });
+      return res.status(429).json({ error: "The roaster is a little overloaded right now — try again in a moment." });
+    }
+    if (/credit balance is too low|billing/i.test(raw)) {
+      return res.status(502).json({
+        error: "The roaster is temporarily out of fuel (AI credits). Please try again later.",
+      });
     }
     return res.status(500).json({ error: err?.message || "Something went wrong while roasting your resume." });
   }
