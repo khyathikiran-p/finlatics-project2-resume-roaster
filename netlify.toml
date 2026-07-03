@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+
+# Next.js runtime — handles SSR pages and API routes as serverless functions.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Keep native/Node-heavy deps out of the esbuild bundle so they load correctly
+# inside the function (pdf-parse ships pdf.js; Prisma ships a query engine).
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["pdf-parse", "@prisma/client", ".prisma"]
