@@ -4,7 +4,7 @@ Upload your resume as a PDF and get a **brutally honest (but genuinely useful)**
 
 Built for the **Finlatics ANDP — Project 2 (AI Resume Roaster)**.
 
-🔗 **Live:** _add your Vercel URL here_
+🔗 **Live:** https://finlatics-project2-resume-roaster-enigmame.vercel.app
 💻 **Repo:** https://github.com/khyathikiran-p/finlatics-project2-resume-roaster
 
 ---
