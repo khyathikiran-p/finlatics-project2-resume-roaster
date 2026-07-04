@@ -40,9 +40,9 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: `Whoa, slow down 🔥 Try again in ${rl.retryAfter}s.` });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY && !process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     return res.status(500).json({
-      error: "Server is missing ANTHROPIC_API_KEY. Add it in the deployment's environment variables.",
+      error: "Server has no AI provider configured. Set ANTHROPIC_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY.",
     });
   }
 
