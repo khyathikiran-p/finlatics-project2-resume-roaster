@@ -19,7 +19,8 @@ Built for the **Finlatics ANDP — Project 2 (AI Resume Roaster)**.
 ## Tech stack
 
 - **Next.js 14** (Pages Router) + **React 18**
-- **@anthropic-ai/sdk** — Claude (`claude-opus-4-8` by default) with a structured 4-layer prompt
+- **@anthropic-ai/sdk** — Claude with a structured 4-layer prompt (primary provider)
+- **Free AI fallbacks** — Groq (Llama 3.3 70B) and Google Gemini, auto-selected by env key, so the app roasts with no paid credits
 - **pdf-parse** — PDF → text extraction
 - **Zod** — validates Claude's JSON output with a graceful fallback
 - **NextAuth.js** — GitHub / Google OAuth; `/api/roast` protected with `getServerSession`
