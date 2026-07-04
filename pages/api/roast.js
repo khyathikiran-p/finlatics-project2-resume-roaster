@@ -1,7 +1,14 @@
 // POST /api/roast
 // Body: { fileBase64: string, fileName?: string }  (PDF encoded as base64)
-// 1) decode → 2) pdf-parse text → 3) Claude roast → 4) (optional) save to DB → return
+// Flow: auth gate → rate limit → decode → pdf-parse → Claude roast → (DB) → return
+//
+// All secrets (ANTHROPIC_API_KEY, DATABASE_URL, NEXTAUTH_SECRET, OAuth creds)
+// are read from server-side env only — this route never returns them and they
+// are never bundled into client code.
 import crypto from "crypto";
+import { getServerSession } from "next-auth/next";
+import { authOptions, authConfigured } from "../../lib/auth";
+import { rateLimit, clientKey } from "../../lib/rateLimit";
 import prisma, { dbEnabled } from "../../lib/db";
 import { parsePdf } from "../../lib/pdfParser";
 import { roastResume } from "../../lib/claude";
@@ -15,6 +22,22 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // ── Auth gate — prevent unauthenticated abuse when OAuth is configured ──
+  let session = null;
+  if (authConfigured) {
+    session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ error: "Please sign in to roast a resume." });
+    }
+  }
+
+  // ── Rate limit (per user session, else per IP) ──
+  const rl = rateLimit(`roast:${clientKey(req, session)}`);
+  if (!rl.ok) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return res.status(429).json({ error: `Whoa, slow down 🔥 Try again in ${rl.retryAfter}s.` });
   }
 
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -47,9 +70,9 @@ export default async function handler(req, res) {
       });
     }
 
-    const result = await roastResume(text);
+    const result = await roastResume(text); // validated (or graceful fallback)
 
-    // Persist if a database is configured; otherwise return an ephemeral id.
+    // ── Persist to the Supabase `roasts` table when a DB is configured ──
     const id = crypto.randomUUID();
     let savedId = id;
     if (dbEnabled && prisma) {
@@ -57,10 +80,9 @@ export default async function handler(req, res) {
         const row = await prisma.roast.create({
           data: {
             id,
-            fileName: (fileName || "resume.pdf").slice(0, 200),
-            overallScore: result.overallScore,
-            verdict: result.verdict,
-            data: result,
+            userId: session?.user?.id || null,
+            resumeText: text,
+            roastJson: result,
           },
         });
         savedId = row.id;
@@ -69,7 +91,7 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ id: savedId, persisted: dbEnabled, result });
+    return res.status(200).json({ id: savedId, persisted: dbEnabled, fileName: fileName || null, result });
   } catch (err) {
     console.error("Roast error:", err);
     const status = err?.status || err?.statusCode;

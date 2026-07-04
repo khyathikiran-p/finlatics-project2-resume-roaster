@@ -19,14 +19,27 @@ Built for the **Finlatics ANDP — Project 2 (AI Resume Roaster)**.
 ## Tech stack
 
 - **Next.js 14** (Pages Router) + **React 18**
-- **@anthropic-ai/sdk** — Claude (`claude-opus-4-8` by default)
+- **@anthropic-ai/sdk** — Claude (`claude-opus-4-8` by default) with a structured 4-layer prompt
 - **pdf-parse** — PDF → text extraction
-- **NextAuth.js** — optional Google sign-in (guest mode by default)
-- **Prisma + Supabase (Postgres)** — optional roast history & auth storage
-- **Tailwind CSS** — styling
-- **Vercel** — deployment
+- **Zod** — validates Claude's JSON output with a graceful fallback
+- **NextAuth.js** — GitHub / Google OAuth; `/api/roast` protected with `getServerSession`
+- **Prisma + Supabase (Postgres)** — `roasts` table persistence
+- **Tailwind CSS** — styling · **Vercel** — deployment
 
-> The app is built to **work with only `ANTHROPIC_API_KEY` set**. Database persistence and Google login switch on automatically when their env vars are present — no code changes needed.
+> The app is built to **work with only `ANTHROPIC_API_KEY` set**. Persistence and sign-in switch on automatically when their env vars are present — no code changes needed.
+
+## How it meets the Project-2 rubric
+
+| Requirement | Implementation |
+| --- | --- |
+| PDF upload via API route | `pages/api/roast.js` uses Next.js built-in body parsing (base64 JSON, 8 MB) |
+| Text extraction | `lib/pdfParser.js` → **pdf-parse** |
+| 4-layer Claude prompt | `lib/claude.js`: **(1) Role** "brutally honest resume critic", **(2) Context** parsed resume text, **(3) Instructions** clarity/impact/buzzwords/formatting/skills, **(4) Output** strict JSON (`overall_score`, `roast_comment`, `section_feedback`) |
+| Auth + protected route | **NextAuth** GitHub/Google provider; `getServerSession` gates `/api/roast` when a provider is configured |
+| Supabase `roasts` schema | `prisma/schema.prisma` → table `roasts` (`id`, `user_id`, `resume_text`, `roast_json`, `created_at`); each result persisted after Claude responds |
+| JSON parsing safety | `try/catch` → **Zod** `RoastSchema.parse()` → graceful fallback object if invalid |
+| Rate limiting | `lib/rateLimit.js` — sliding-window counter keyed by user session or IP on `/api/roast` |
+| Secret handling | `ANTHROPIC_API_KEY`, `DATABASE_URL`, `NEXTAUTH_SECRET`, OAuth secrets read **server-side only** (API routes / `getServerSideProps`); never `NEXT_PUBLIC_`, never returned to the client |
 
 ## Getting started (local)
 

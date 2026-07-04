@@ -39,7 +39,7 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <button onClick={() => signIn("google")} className="rounded-lg border border-slate-700 px-3 py-1.5 transition hover:border-ember-400 hover:text-ember-400">
+              <button onClick={() => signIn()} className="rounded-lg border border-slate-700 px-3 py-1.5 transition hover:border-ember-400 hover:text-ember-400">
                 Sign in
               </button>
             ))}

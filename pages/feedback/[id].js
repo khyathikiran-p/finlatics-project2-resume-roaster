@@ -17,8 +17,8 @@ export async function getServerSideProps(ctx) {
         return {
           props: {
             id,
-            result: row.data,
-            fileName: row.fileName || null,
+            result: row.roastJson,
+            fileName: null,
           },
         };
       }
@@ -75,7 +75,7 @@ export default function FeedbackPage({ id, result: serverResult, fileName: serve
   return (
     <>
       <Head>
-        <title>Your roast — {result.overallScore}/100</title>
+        <title>Your roast — {result.overall_score}/100</title>
       </Head>
       <Header />
 
@@ -83,24 +83,26 @@ export default function FeedbackPage({ id, result: serverResult, fileName: serve
         {/* Verdict + score */}
         <section className="card grid items-center gap-8 p-8 md:grid-cols-[auto_1fr]">
           <div className="mx-auto">
-            <ScoreCircle score={result.overallScore} />
+            <ScoreCircle score={result.overall_score} />
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-slate-500">The verdict</p>
             <h1 className="mt-2 font-display text-2xl font-bold text-ember-400 md:text-3xl">
               {result.verdict}
             </h1>
-            {result.roast && <p className="mt-4 leading-relaxed text-slate-300">{result.roast}</p>}
+            {result.roast_comment && (
+              <p className="mt-4 leading-relaxed text-slate-300">{result.roast_comment}</p>
+            )}
             {fileName && <p className="mt-4 text-sm text-slate-500">📄 {fileName}</p>}
           </div>
         </section>
 
-        {/* Category breakdown */}
+        {/* Section breakdown */}
         <section className="mt-10">
           <h2 className="mb-5 font-display text-xl font-bold">The breakdown</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            {result.categories.map((c) => (
-              <FeedbackCard key={c.name} name={c.name} score={c.score} feedback={c.feedback} />
+            {result.section_feedback.map((c) => (
+              <FeedbackCard key={c.section} name={c.section} score={c.score} feedback={c.comment} />
             ))}
           </div>
         </section>
